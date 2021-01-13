@@ -1,8 +1,16 @@
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 public class JacksonDemo {
 
@@ -18,7 +26,10 @@ public class JacksonDemo {
 //        demo.javaObjectToJsonFile();
 //        demo.javaObjectToJsonOutput();
 //        demo.javaObjectToJsonString();
-        demo.jsonFileToJavaObject();
+//        demo.jsonFileToJavaObject();
+//        demo.jsonFileToJsonNode();
+//        demo.jsonFileThroughStreaming();
+        demo.jsonGenerator();
 
     }
 
@@ -43,6 +54,59 @@ public class JacksonDemo {
         System.out.println("JAVA OBJECT: " + userParsedFromJson);
     }
 
+    public void jsonFileToJsonNode() throws IOException {
+        JsonNode node = mapper.readTree(JSON_FILE);
+
+        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            String fieldName = field.getKey();
+            JsonNode childNode = field.getValue();
+            System.out.println("KEY: " + fieldName);
+            System.out.println("VALUE: " + childNode);
+        }
+
+        String phoneNumber = node.get("phone").asText();
+        System.out.println("PHONE NUMBER: " + phoneNumber);
+
+//        ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+//        System.out.println("JSON NODE: " + writer.writeValueAsString(node));
+
+    }
+
+    public void jsonFileThroughStreaming() throws IOException {
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = factory.createParser(JSON_FILE);
+        JsonToken token;
+
+        while ((token = parser.nextToken()) != null) {
+//            System.out.println(token);
+//            System.out.println(parser.getText());
+
+            if (token.isScalarValue()) {
+                String currentName = parser.currentName();
+                if (currentName != null) {
+                    String text = parser.getText();
+                    System.out.println(currentName + " : " + text);
+                }
+            }
+        }
+    }
+
+    public void jsonGenerator() throws IOException {
+        JsonFactory jsonFactory = new JsonFactory();
+        JsonGenerator jsonGenerator = jsonFactory.createGenerator(System.out);
+        jsonGenerator.setPrettyPrinter(new DefaultPrettyPrinter());
+
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("förnamn", userObject.getFirstName());
+        jsonGenerator.writeStringField("efternamn", userObject.getLastName());
+        jsonGenerator.writeEndObject();
+        jsonGenerator.flush();
+        jsonGenerator.close();
+
+    }
 
 
 }
