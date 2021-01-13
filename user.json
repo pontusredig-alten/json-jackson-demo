@@ -1,0 +1,12 @@
+{
+  "firstName" : "Kalle",
+  "lastName" : "Anka",
+  "email" : "kalle@mail.com",
+  "phone" : "0700123456",
+  "newValue" : "newValue",
+  "address" : {
+    "streetAddress" : "Paradisäppelvägen 111",
+    "postalCode" : "12345",
+    "city" : "Ankeborg"
+  }
+}
